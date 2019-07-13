@@ -1,0 +1,3 @@
+github.com/smartystreets/assertions v1.0.0/go.mod h1:kHHU4qYBaI3q23Pp3VPrmWhuIUrLW/7eUrw0BU5VaoM=
+github.com/smartystreets/gunit v1.0.1 h1:esMruGUHg849RBnE6pUIt7jDVAHo9Nzsvej7sk22yRc=
+github.com/smartystreets/gunit v1.0.1/go.mod h1:qwPWnhz6pn0NnRBP++URONOVyNkPyr4SauJk4cUOwJs=
