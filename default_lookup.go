@@ -1,4 +1,4 @@
-package checkpoint
+package recaptcha
 
 type defaultLookup struct {
 	Score    float32  `json:"score"`

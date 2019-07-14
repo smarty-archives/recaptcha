@@ -1,4 +1,4 @@
-package checkpoint
+package recaptcha
 
 import "net/http"
 
