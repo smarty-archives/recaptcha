@@ -65,8 +65,7 @@ func (this *DefaultVerifier) newRequest(token, clientIP string) (*http.Response,
 }
 func (this *DefaultVerifier) parseLookup(response *http.Response) (lookup defaultLookup, err error) {
 	defer func() { _ = response.Body.Close() }()
-	err = json.NewDecoder(response.Body).Decode(&lookup)
-	return lookup, err
+	return lookup, json.NewDecoder(response.Body).Decode(&lookup)
 }
 
 /* ------------------------------------------------------------------------------------------------------------------ */
