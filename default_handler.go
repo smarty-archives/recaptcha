@@ -66,6 +66,9 @@ func WithRejectedStatus(value int) HandlerOption {
 func WithErrorStatus(value int) HandlerOption {
 	return func(this *DefaultHandler) { this.errorStatus = value }
 }
+func WithInnerHandler(value http.Handler) HandlerOption {
+	return func(this *DefaultHandler) { this.inner = value }
+}
 
 func defaultTokenReader(request *http.Request) string {
 	return request.Form.Get(defaultFormTokenName)
