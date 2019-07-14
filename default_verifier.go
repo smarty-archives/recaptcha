@@ -2,6 +2,7 @@ package recaptcha
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -51,17 +52,22 @@ func (this *DefaultVerifier) verify(token, clientIP string) (bool, error) {
 	}
 }
 func (this *DefaultVerifier) newRequest(token, clientIP string) (*http.Response, error) {
-	request, _ := http.NewRequest(http.MethodPost, this.endpoint, nil)
-	request.Form = url.Values{
+	body := this.buildRequestBody(token, clientIP)
+	request, _ := http.NewRequest(http.MethodPost, this.endpoint, body)
+	request.Header.Set(contentTypeHeader, defaultContentType)
+	return this.client.Do(request)
+}
+func (this *DefaultVerifier) buildRequestBody(token, clientIP string) io.Reader {
+	values := url.Values{
 		"secret":   []string{this.secret()},
 		"response": []string{token},
 	}
 
 	if len(clientIP) > 0 {
-		request.Form.Set("remoteip", clientIP)
+		values.Set("remoteip", clientIP)
 	}
 
-	return this.client.Do(request)
+	return strings.NewReader(values.Encode())
 }
 func (this *DefaultVerifier) parseLookup(response *http.Response) (lookup defaultLookup, err error) {
 	defer func() { _ = response.Body.Close() }()
@@ -99,8 +105,10 @@ func createMap(values []string) map[string]struct{} {
 }
 
 const (
-	defaultEndpoint  = "https://www.google.com/recaptcha/api/siteverify"
-	defaultThreshold = 0.3
+	contentTypeHeader  = "Content-Type"
+	defaultContentType = "application/x-www-form-urlencoded"
+	defaultEndpoint    = "https://www.google.com/recaptcha/api/siteverify"
+	defaultThreshold   = 0.3
 )
 
 /* ------------------------------------------------------------------------------------------------------------------ */

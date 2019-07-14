@@ -51,8 +51,9 @@ func (this *DefaultVerifierFixture) TestTokenLookupIsPerformed() {
 
 	this.So(this.clientCalls, should.Equal, 1)
 	this.So(this.clientRequest.Method, should.Equal, http.MethodPost)
+	this.So(this.clientRequest.Header.Get(contentTypeHeader), should.Equal, defaultContentType)
 	this.So(this.clientRequest.URL.String(), should.Equal, defaultEndpoint)
-	this.So(this.clientRequest.Form, should.Resemble, url.Values{
+	this.So(this.clientRequest.PostForm, should.Resemble, url.Values{
 		"secret":   []string{"my-secret"},
 		"response": []string{"token"},
 		"remoteip": []string{"client-ip"},
@@ -71,7 +72,7 @@ func (this *DefaultVerifierFixture) TestDoNotSendEmptyClientIP() {
 
 	_, _ = this.verifier.Verify("token", "")
 
-	this.So(this.clientRequest.Form, should.Resemble, url.Values{
+	this.So(this.clientRequest.PostForm, should.Resemble, url.Values{
 		"secret":   []string{"my-secret"},
 		"response": []string{"token"},
 	})
@@ -137,6 +138,7 @@ func (this *DefaultVerifierFixture) TestRequiredAction() {
 /* ------------------------------------------------------------------------------------------------------------------ */
 
 func (this *DefaultVerifierFixture) Do(request *http.Request) (*http.Response, error) {
+	_ = request.ParseForm()
 	this.clientCalls++
 	this.clientRequest = request
 	return this.clientResponse, this.clientError

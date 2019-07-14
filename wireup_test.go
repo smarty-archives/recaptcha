@@ -39,6 +39,7 @@ func (this *WireupFixture) TestWireup() {
 }
 
 func (this *WireupFixture) Do(request *http.Request) (*http.Response, error) {
+	_ = request.ParseForm()
 	this.resolvedToken = request.Form.Get("response")
 	return nil, errors.New("")
 }
