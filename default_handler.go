@@ -71,6 +71,10 @@ func WithInnerHandler(value http.Handler) HandlerOption {
 }
 
 func defaultTokenReader(request *http.Request) string {
+	if request.Form == nil {
+		_ = request.ParseForm()
+	}
+
 	return request.Form.Get(defaultFormTokenName)
 }
 func defaultClientIPReader(request *http.Request) string {
