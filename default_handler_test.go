@@ -86,6 +86,49 @@ func (this *DefaultHandlerFixture) TestTokenAndClientIPReadFromRequest() {
 	this.So(this.verifiedClientIP, should.Equal, "1.2.3.4")
 }
 
+func (this *DefaultHandlerFixture) TestAlternateTokenReader() {
+	this.request.Header.Set("read-from-different-location", "my-token")
+
+	WithTokenReader(func(request *http.Request) string {
+		return this.request.Header.Get("read-from-different-location")
+	})(this.handler)
+
+	this.handler.ServeHTTP(this.response, this.request)
+
+	this.So(this.verifiedToken, should.Equal, "my-token")
+}
+
+func (this *DefaultHandlerFixture) TestAlternateClientIPReader() {
+	this.request.Header.Set("read-from-different-location", "1.2.3.4")
+
+	WithClientIPReader(func(request *http.Request) string {
+		return this.request.Header.Get("read-from-different-location")
+	})(this.handler)
+
+	this.handler.ServeHTTP(this.response, this.request)
+
+	this.So(this.verifiedClientIP, should.Equal, "1.2.3.4")
+}
+
+func (this *DefaultHandlerFixture) TestAlternateRejectedResponseStatus() {
+	this.verifyResult = false
+	WithRejectedStatus(http.StatusTooManyRequests)(this.handler)
+
+	this.handler.ServeHTTP(this.response, this.request)
+
+	this.assertResponse(http.StatusTooManyRequests)
+}
+
+func (this *DefaultHandlerFixture) TestAlternateErrorResponseStatus() {
+	this.verifyResult = false
+	this.verifyError = ErrServerConfig
+	WithErrorStatus(http.StatusBadGateway)(this.handler)
+
+	this.handler.ServeHTTP(this.response, this.request)
+
+	this.assertResponse(http.StatusBadGateway)
+}
+
 /* ------------------------------------------------------------------------------------------------------------------ */
 
 func (this *DefaultHandlerFixture) assertInnerCalled() {

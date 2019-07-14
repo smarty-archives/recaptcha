@@ -32,14 +32,14 @@ func (this defaultLookup) meetsRequiredThreshold(threshold float32) bool {
 }
 
 func (this defaultLookup) hasAllowedHost(allowed map[string]struct{}) bool {
-	return isAllowed(this.Hostname, allowed)
+	return isValueAllowed(this.Hostname, allowed)
 }
 
 func (this defaultLookup) hasAllowedAction(allowed map[string]struct{}) bool {
-	return isAllowed(this.Action, allowed)
+	return isValueAllowed(this.Action, allowed)
 }
 
-func isAllowed(value string, allowed map[string]struct{}) bool {
+func isValueAllowed(value string, allowed map[string]struct{}) bool {
 	if len(allowed) == 0 {
 		return true
 	}

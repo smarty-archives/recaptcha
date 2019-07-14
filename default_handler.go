@@ -3,12 +3,27 @@ package checkpoint
 import "net/http"
 
 type DefaultHandler struct {
-	inner    http.Handler
-	verifier TokenVerifier
+	inner          http.Handler
+	verifier       TokenVerifier
+	token          func(*http.Request) string
+	clientIP       func(*http.Request) string
+	rejectedStatus int
+	errorStatus    int
 }
 
-func NewHandler(verifier TokenVerifier) *DefaultHandler {
-	return &DefaultHandler{verifier: verifier}
+func NewHandler(verifier TokenVerifier, options ...HandlerOption) *DefaultHandler {
+	this := &DefaultHandler{verifier: verifier}
+
+	WithTokenReader(defaultTokenReader)(this)
+	WithClientIPReader(defaultClientIPReader)(this)
+	WithRejectedStatus(defaultRejectedStatus)(this)
+	WithErrorStatus(defaultErrorStatus)(this)
+
+	for _, option := range options {
+		option(this)
+	}
+
+	return this
 }
 
 func (this *DefaultHandler) Install(inner http.Handler) {
@@ -16,18 +31,50 @@ func (this *DefaultHandler) Install(inner http.Handler) {
 }
 
 func (this *DefaultHandler) ServeHTTP(response http.ResponseWriter, request *http.Request) {
-	token := request.Form.Get(defaultFormTokenName)
-	clientIP := request.RemoteAddr
+	result, err := this.verify(request)
 
-	result, err := this.verifier.Verify(token, clientIP)
-	if !result && err == nil {
-		http.Error(response, http.StatusText(defaultRejectedStatus), defaultRejectedStatus)
-	} else if err == ErrServerConfig {
-		http.Error(response, http.StatusText(defaultErrorStatus), defaultErrorStatus)
-	} else {
+	if result || err == ErrLookupFailure {
 		this.inner.ServeHTTP(response, request)
+	} else if err != nil {
+		writeResponse(response, this.errorStatus)
+	} else {
+		writeResponse(response, this.rejectedStatus)
 	}
 }
+func (this *DefaultHandler) verify(request *http.Request) (bool, error) {
+	token := this.token(request)
+	clientIP := this.clientIP(request)
+	return this.verifier.Verify(token, clientIP)
+}
+func writeResponse(response http.ResponseWriter, statusCode int) {
+	http.Error(response, http.StatusText(statusCode), statusCode)
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+type HandlerOption func(*DefaultHandler)
+
+func WithTokenReader(callback func(*http.Request) string) HandlerOption {
+	return func(this *DefaultHandler) { this.token = callback }
+}
+func WithClientIPReader(callback func(*http.Request) string) HandlerOption {
+	return func(this *DefaultHandler) { this.clientIP = callback }
+}
+func WithRejectedStatus(value int) HandlerOption {
+	return func(this *DefaultHandler) { this.rejectedStatus = value }
+}
+func WithErrorStatus(value int) HandlerOption {
+	return func(this *DefaultHandler) { this.errorStatus = value }
+}
+
+func defaultTokenReader(request *http.Request) string {
+	return request.Form.Get(defaultFormTokenName)
+}
+func defaultClientIPReader(request *http.Request) string {
+	return request.RemoteAddr
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
 
 const (
 	defaultFormTokenName  = "g-recaptcha-response"
