@@ -79,7 +79,7 @@ func (this *DefaultHandlerFixture) TestLookupFailureRequestAllowed() {
 
 func (this *DefaultHandlerFixture) TestTokenAndClientIPReadFromPOSTRequest() {
 	this.request, _ = http.NewRequest(http.MethodPost, "/", ioutil.NopCloser(strings.NewReader(url.Values{
-		defaultFormTokenName: []string{"my-token"},
+		DefaultFormTokenName: []string{"my-token"},
 	}.Encode())))
 
 	this.request.Header.Set("Content-Type", defaultContentType)
@@ -92,7 +92,7 @@ func (this *DefaultHandlerFixture) TestTokenAndClientIPReadFromPOSTRequest() {
 }
 
 func (this *DefaultHandlerFixture) TestTokenAndClientIPReadFromGETRequest() {
-	this.request, _ = http.NewRequest(http.MethodGet, fmt.Sprintf("/?%s=my-token", defaultFormTokenName), nil)
+	this.request, _ = http.NewRequest(http.MethodGet, fmt.Sprintf("/?%s=my-token", DefaultFormTokenName), nil)
 	this.request.RemoteAddr = "1.2.3.4"
 
 	this.handler.ServeHTTP(this.response, this.request)

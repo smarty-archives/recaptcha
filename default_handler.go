@@ -75,7 +75,7 @@ func defaultTokenReader(request *http.Request) string {
 		_ = request.ParseForm()
 	}
 
-	return request.Form.Get(defaultFormTokenName)
+	return request.Form.Get(DefaultFormTokenName)
 }
 func defaultClientIPReader(request *http.Request) string {
 	return request.RemoteAddr
@@ -84,7 +84,7 @@ func defaultClientIPReader(request *http.Request) string {
 /* ------------------------------------------------------------------------------------------------------------------ */
 
 const (
-	defaultFormTokenName  = "g-recaptcha-response"
+	DefaultFormTokenName  = "g-recaptcha-response"
 	defaultRejectedStatus = http.StatusForbidden
 	defaultErrorStatus    = http.StatusInternalServerError
 )
