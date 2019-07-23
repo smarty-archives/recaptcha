@@ -71,11 +71,7 @@ func WithInnerHandler(value http.Handler) HandlerOption {
 }
 
 func defaultTokenReader(request *http.Request) string {
-	if request.Form == nil {
-		_ = request.ParseForm()
-	}
-
-	return request.Form.Get(DefaultFormTokenName)
+	return request.URL.Query().Get(DefaultFormTokenName)
 }
 func defaultClientIPReader(request *http.Request) string {
 	return request.RemoteAddr

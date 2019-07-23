@@ -2,11 +2,8 @@ package recaptcha
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
-	"strings"
 	"testing"
 
 	"github.com/smartystreets/assertions/should"
@@ -77,21 +74,7 @@ func (this *DefaultHandlerFixture) TestLookupFailureRequestAllowed() {
 	this.assertInnerCalled()
 }
 
-func (this *DefaultHandlerFixture) TestTokenAndClientIPReadFromPOSTRequest() {
-	this.request, _ = http.NewRequest(http.MethodPost, "/", ioutil.NopCloser(strings.NewReader(url.Values{
-		DefaultFormTokenName: []string{"my-token"},
-	}.Encode())))
-
-	this.request.Header.Set("Content-Type", defaultContentType)
-	this.request.RemoteAddr = "1.2.3.4"
-
-	this.handler.ServeHTTP(this.response, this.request)
-
-	this.So(this.verifiedToken, should.Equal, "my-token")
-	this.So(this.verifiedClientIP, should.Equal, "1.2.3.4")
-}
-
-func (this *DefaultHandlerFixture) TestTokenAndClientIPReadFromGETRequest() {
+func (this *DefaultHandlerFixture) TestTokenAndClientIPReadFromRequest() {
 	this.request, _ = http.NewRequest(http.MethodGet, fmt.Sprintf("/?%s=my-token", DefaultFormTokenName), nil)
 	this.request.RemoteAddr = "1.2.3.4"
 
