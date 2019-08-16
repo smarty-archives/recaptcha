@@ -19,9 +19,9 @@ func (this defaultLookup) tokenExists() (bool, error) {
 	for _, item := range this.Errors {
 		if item == expiredTokenMessage {
 			return false, nil
-		} else {
-			return false, ErrServerConfig
 		}
+
+		return false, ErrServerConfig
 	}
 
 	return true, nil

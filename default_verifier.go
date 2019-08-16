@@ -38,9 +38,9 @@ func (this *DefaultVerifier) Verify(token, clientIP string) (bool, error) {
 	token = strings.TrimSpace(token)
 	if len(token) == 0 {
 		return false, nil
-	} else {
-		return this.verify(token, clientIP)
 	}
+	
+	return this.verify(token, clientIP)
 }
 func (this *DefaultVerifier) verify(token, clientIP string) (bool, error) {
 	if response, err := this.newRequest(token, clientIP); err != nil {
