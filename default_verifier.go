@@ -39,7 +39,7 @@ func (this *DefaultVerifier) Verify(token, clientIP string) (bool, error) {
 	if len(token) == 0 {
 		return false, nil
 	}
-	
+
 	return this.verify(token, clientIP)
 }
 func (this *DefaultVerifier) verify(token, clientIP string) (bool, error) {
